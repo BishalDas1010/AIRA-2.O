@@ -9,7 +9,7 @@ import time
 from vosk import Model, KaldiRecognizer
 from difflib import SequenceMatcher
 
-# ================= CONFIG =================
+
 ACCESS_KEY = "nIQ6KLjPZ9+wibbwBOjDDY5jhoH+h8fVXGS+wts4R/rR3fdEW8Y6jA=="
 
 WAKE_SOUND = "wake.wav"
@@ -29,11 +29,11 @@ CONFIDENCE_HIGH = 0.75
 # Accuracy thresholds (percentage)
 ACCURACY_MEDIUM = 60
 ACCURACY_HIGH = 75
-# ==========================================
+#----
 
-# ---------- CHECK MODEL ----------
+# CHECK MODEL ----------
 if not os.path.exists(VOSK_MODEL_PATH):
-    print("❌ Vosk model not found")
+    print("Vosk model not found")
     sys.exit(1)
 
 # ---------- COMMAND GRAMMAR ----------
@@ -80,7 +80,7 @@ last_command_time = time.time()
 
 # ---------- CLEANUP ----------
 def cleanup(sig=None, frame=None):
-    print("\n🛑 Shutting down AIRA...")
+    print("\n Shutting down AIRA...")
     try:
         stream.stop_stream()
         stream.close()
@@ -93,7 +93,7 @@ def cleanup(sig=None, frame=None):
 signal.signal(signal.SIGINT, cleanup)
 signal.signal(signal.SIGTERM, cleanup)
 
-# ---------- CONFIDENCE ----------
+# CONFIDENCE
 def extract_confidence(result):
     words = result.get("result")
     if not words:
@@ -101,7 +101,7 @@ def extract_confidence(result):
     confs = [w.get("conf", 0.0) for w in words if "conf" in w]
     return sum(confs) / len(confs) if confs else None
 
-# ---------- ACCURACY ----------
+# ACCURACY 
 def command_accuracy(spoken, valid_commands):
     best_score = 0
     best_match = None
@@ -112,9 +112,9 @@ def command_accuracy(spoken, valid_commands):
             best_match = cmd
     return best_match, round(best_score * 100, 2)
 
-# ---------- COMMAND LISTENER ----------
+# COMMAND LISTENER 
 def listen_light_command():
-    print("🎙️ Listening...")
+    print("Listening...")
 
     os.system("arecord -d 3 -r 16000 -f S16_LE -c 1 /tmp/cmd.wav 2>/dev/null")
 
@@ -139,8 +139,9 @@ os_path ="paplay /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga"
 def volume_up():
     os.system("pactl set-sink-volume @DEFAULT_SINK@ +10%")
     os.system(os_path)
+
 def volueme_down():
-    os.system("pactl set-sink-volume @DEFAULT_SINK@ -5%")
+    os.system("pactl set-sink-volume @DEFAULT_SINK@ -10%")
     os.system(os_path)
 
 def sleep_mode():
@@ -191,7 +192,7 @@ print("😴 Sleeping… Say 'Hey Aira'")
 # ---------- MAIN LOOP ----------
 while True:
 
-    # ================= SLEEP MODE =================
+    #SLEEP MODE 
     if state == STATE_SLEEP:
         pcm = stream.read(porcupine.frame_length, exception_on_overflow=False)
         pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
@@ -202,7 +203,7 @@ while True:
             state = STATE_ACTIVE
             last_command_time = time.time()
 
-    # ================= ACTIVE MODE =================
+    # ACTIVE MODE 
     elif state == STATE_ACTIVE:
 
         # Auto-sleep on timeout
@@ -238,12 +239,17 @@ while True:
         if best_cmd in ["stop aira", "aira stop", "go to sleep", "sleep mode"]:
             speak("Okay, going to sleep")
             state = STATE_SLEEP
-            print("😴 Sleeping… Say 'Hey Aira'")
+            print(" Sleeping… Say 'Hey Aira'")
             continue
          #volume increse 
         if best_cmd in ['volume up','increase volume']:
             speak("Increasing volume")
             volume_up()
+            time.sleep(4)
+        
+        if best_cmd in ['volume down','decrease volume']:
+            speak("decrease volume")
+            volueme_down()
         
 
         # Brightness commands
