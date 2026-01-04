@@ -123,7 +123,21 @@ class function_aira:
         os.system("playerctl next")
 
     def on_keyboard(self, script_path):
-        os.system(f"sudo {script_path} on")
+        os.system(f"{script_path} on")
 
     def off_keyboard(self, script_path):
-        os.system(f"sudo {script_path} off")
+        os.system(f"{script_path} off")
+
+    def cpu_uses(self):
+        """Get CPU usage percentage"""
+        try:
+            result = subprocess.run(
+                "top -bn1 | grep 'Cpu(s)' | awk '{print 100 - $8}'",
+                shell=True,
+                capture_output=True,
+                text=True
+            )
+            cpu_percent = result.stdout.strip()
+            return cpu_percent if cpu_percent else "0"
+        except Exception as e:
+            return "0"

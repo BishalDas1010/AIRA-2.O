@@ -12,6 +12,9 @@ from difflib import SequenceMatcher
 from datetime import datetime
 from voskaModel import VoskEngine
 from aira_function import function_aira
+from comands import comands
+
+
 
 ACCESS_KEY = "nIQ6KLjPZ9+wibbwBOjDDY5jhoH+h8fVXGS+wts4R/rR3fdEW8Y6jA=="
 
@@ -52,94 +55,10 @@ def get_today_date():
     return f"Today is {day}, {date} {month} {year}"
 
 
-# ---------- COMMAND GRAMMAR ----------
-COMMANDS = [
-    "sleep system", 
-    "lock and sleep", 
-    "suspend system",
-
-    "pause song", 
-    "puse song", 
-    "pause music", 
-    "stop song",
-    "song puse"
-
-    #song 
-    "resume song", 
-    "play again",
-    "continue song",
 
 
-    # Volume
-    "volume up",
-    "increase volume",
-    "raise volume",
-    "aira raise volume",
-    "decrease volume",
-    "volume down",
-    "lower volume",
-
-    # Brightness
-    "brightness up",
-    "brightness down",
-    "increase brightness",
-    "decrease brightness",
-    "raise brightness",
-    "lower brightness",
-    "dim brightness",
-
-    # System
-    "stop aira",
-    "aira stop",
-    "go to sleep",
-    "sleep mode",
-
-    # Date 
-    "aira what is the date",
-    "aira tell me the date",
-    
-    # Flight mode
-    "turn on flight mode",
-    "enable flight mode",
-    "flight mode on",
-    "airplane mode on",
-    "turn off flight mode",
-    "disable flight mode",
-    "flight mode off",
-    "airplane mode off",
-    
-    # Battery
-    "aira battery percentage",
-    "aira battery status",
-    "aira how much battery",
-    "aira battery level",
-
-    # Music
-    "play song",
-    "play music",
-    "aira play song",
-    "aira play music",
-    #music next
-    "next song",
-    "next music",
-    "song next",
-    #keyboard
-    #on
-    "turn on keyboard brightness",
-    "keyboard brightness on",
-    "enable keyboard light",
-    #off
-    "turn off keyboard brightness",
-    "keyboard brightness off",
-    "disable keyboard light",
-    #cpu uses
-    "aira cpu percentage",
-    "aira cpu use",
-    "aira cpu use",
-    "cpu uses"
-]
-
-
+COMMANDSs =comands
+COMMANDS = COMMANDSs.COMMANDS
 YES_WORDS = ["yes", "yeah", "confirm", "sure", "do it"]
 NO_WORDS  = ["no", "cancel", "stop", "don't", "do not"]
 
@@ -435,6 +354,7 @@ while True:
         elif best_cmd in ["resume song", "play again", "continue song"]:      
             function_Aira.resume_song()
             speak("Resuming song")
+            
         # sleep
         elif best_cmd in ["sleep system", "lock and sleep", "suspend system"]:
             speak("Are you sure you want to suspend the system?")
