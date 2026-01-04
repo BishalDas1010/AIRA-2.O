@@ -62,6 +62,7 @@ COMMANDS = [
     "puse song", 
     "pause music", 
     "stop song",
+    "song puse"
 
     #song 
     "resume song", 
@@ -117,7 +118,12 @@ COMMANDS = [
     "play song",
     "play music",
     "aira play song",
-    "aira play music"
+    "aira play music",
+    #music next
+    "next song",
+    "next music",
+    "song next",
+    
 ]
 
 
@@ -415,7 +421,7 @@ while True:
             function_Aira.brightness_down()
 
         # Pause song commands
-        elif best_cmd in ["pause song", "puse song", "pause music", "stop song"]:
+        elif best_cmd in ["pause song", "puse song", "pause music", "song puse","stop song"]:
             function_Aira.pause_song()
             speak("Song paused")
 
@@ -429,6 +435,10 @@ while True:
         elif best_cmd in ["sleep system", "lock and sleep", "suspend system"]:
             speak("Locking and suspending the system.")
             os.system("loginctl lock-session && systemctl suspend")
+
+        elif best_cmd in ["next song","next music","song next"]:
+            function_Aira.next()
+            speak("playing next song ")
 
         #power off 
         else:

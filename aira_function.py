@@ -118,4 +118,6 @@ class function_aira:
                 
         except Exception as e:
             print(f"❌ Error: {e}")
-
+        
+    def next(self):
+        os.system("playerctl next")
