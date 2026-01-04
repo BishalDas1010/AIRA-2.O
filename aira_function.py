@@ -121,3 +121,9 @@ class function_aira:
         
     def next(self):
         os.system("playerctl next")
+
+    def on_keyboard(self, script_path):
+        os.system(f"sudo {script_path} on")
+
+    def off_keyboard(self, script_path):
+        os.system(f"sudo {script_path} off")

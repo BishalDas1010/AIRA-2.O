@@ -123,23 +123,19 @@ COMMANDS = [
     "next song",
     "next music",
     "song next",
-    
+    #keyboard
+    #on
+    "turn on keyboard brightness",
+    "keyboard brightness on",
+    "enable keyboard light",
+    #off
+    "turn off keyboard brightness",
+    "keyboard brightness off",
+    "disable keyboard light"
 ]
+script_path = "sudo ./keyboard.sh"
 
 
-# vosk_model = Model(VOSK_MODEL_PATH)
-
-# def create_recognizer():
-#     """Create a fresh Vosk recognizer instance"""
-#     recognizer = KaldiRecognizer(
-#         vosk_model,
-#         16000,
-#         json.dumps(COMMANDS)
-#     )
-#     recognizer.SetWords(True)
-#     return recognizer
-
-# vosk_recognizer = create_recognizer()
 voskaa = VoskEngine(COMMANDS)
 vosk_recognizer = voskaa.create_recognizer()
 
@@ -439,6 +435,13 @@ while True:
         elif best_cmd in ["next song","next music","song next"]:
             function_Aira.next()
             speak("playing next song ")
+        elif best_cmd in ["turn on keyboard brightness", "keyboard brightness on","enable keyboard light"]:
+            function_Aira.on_keyboard(script_path)
+            speak("turn on keyboard brightness")
+
+        elif best_cmd in ["turn off keyboard brightness", "keyboard brightness off", "disable keyboard light"]:
+            function_Aira.off_keyboard(script_path)
+            speak("turn off keyboard brightness")
 
         #power off 
         else:
