@@ -10,10 +10,8 @@ import subprocess
 from vosk import Model, KaldiRecognizer
 from difflib import SequenceMatcher
 from datetime import datetime
-import webbrowser
-import urllib.parse
-import requests
-import re
+from voskaModel import VoskEngine
+from aira_function import function_aira
 
 ACCESS_KEY = "nIQ6KLjPZ9+wibbwBOjDDY5jhoH+h8fVXGS+wts4R/rR3fdEW8Y6jA=="
 
@@ -56,6 +54,9 @@ def get_today_date():
 
 # ---------- COMMAND GRAMMAR ----------
 COMMANDS = [
+    "sleep system", 
+    "lock and sleep", 
+    "suspend system",
 
     "pause song", 
     "puse song", 
@@ -120,19 +121,21 @@ COMMANDS = [
 ]
 
 
-vosk_model = Model(VOSK_MODEL_PATH)
+# vosk_model = Model(VOSK_MODEL_PATH)
 
-def create_recognizer():
-    """Create a fresh Vosk recognizer instance"""
-    recognizer = KaldiRecognizer(
-        vosk_model,
-        16000,
-        json.dumps(COMMANDS)
-    )
-    recognizer.SetWords(True)
-    return recognizer
+# def create_recognizer():
+#     """Create a fresh Vosk recognizer instance"""
+#     recognizer = KaldiRecognizer(
+#         vosk_model,
+#         16000,
+#         json.dumps(COMMANDS)
+#     )
+#     recognizer.SetWords(True)
+#     return recognizer
 
-vosk_recognizer = create_recognizer()
+# vosk_recognizer = create_recognizer()
+voskaa = VoskEngine(COMMANDS)
+vosk_recognizer = voskaa.create_recognizer()
 
 # ---------- STATES ----------
 STATE_SLEEP = 0
@@ -183,7 +186,7 @@ def listen_light_command():
     os.system("arecord -d 3 -r 16000 -f S16_LE -c 1 /tmp/cmd.wav 2>/dev/null")
 
     # Create fresh recognizer for each command
-    vosk_recognizer = create_recognizer()
+    vosk_recognizer = voskaa.create_recognizer()
 
     with open("/tmp/cmd.wav", "rb") as f:
         f.read(44)  # Skip WAV header
@@ -208,7 +211,7 @@ def listen_free_form():
     os.system("arecord -d 3 -r 16000 -f S16_LE -c 1 /tmp/cmd.wav 2>/dev/null")
     
     # Create recognizer WITHOUT grammar constraints
-    free_recognizer = KaldiRecognizer(vosk_model, 16000)
+    free_recognizer = KaldiRecognizer(voskaa.vosk_model, 16000)
     free_recognizer.SetWords(True)
     
     with open("/tmp/cmd.wav", "rb") as f:
@@ -228,66 +231,6 @@ def listen_free_form():
 SOUND_EFFECT = "paplay /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga"
 
 # ---------- ACTIONS ----------
-def pause_song():
-    """Pause currently playing media"""
-    os.system("playerctl pause")
-    speak("Song paused")
-
-def resume_song():
-    """Resume/play currently paused media"""
-    os.system("playerctl play")
-    speak("Resuming song")
-
-def volume_up():
-    """Increase system volume"""
-    os.system("pactl set-sink-volume @DEFAULT_SINK@ +10%")
-    os.system(SOUND_EFFECT)
-
-def volume_down():
-    """Decrease system volume"""
-    os.system("pactl set-sink-volume @DEFAULT_SINK@ -10%")
-    os.system(SOUND_EFFECT)
-
-def date_today():
-    """Speak the current date"""
-    speak(get_today_date())
-
-def get_battery_info():
-    """Get battery percentage"""
-    try:
-        result = subprocess.run(
-            "upower -i $(upower -e | grep BAT) | grep -E 'percentage' | awk '{print $2}'",
-            shell=True,
-            capture_output=True,
-            text=True
-        )
-        battery_percent = result.stdout.strip()
-        if battery_percent:
-            return f"Battery is at {battery_percent}"
-        else:
-            return "Unable to get battery status"
-    except Exception as e:
-        return "Error checking battery"
-
-def airplane_mode_on():
-    """Enable airplane mode (disable WiFi)"""
-    os.system("nmcli radio wifi off")
-    os.system(SOUND_EFFECT)
-
-def airplane_mode_off():
-    """Disable airplane mode (enable WiFi)"""
-    os.system("nmcli radio wifi on")
-    os.system(SOUND_EFFECT)
-
-def brightness_up():
-    """Increase screen brightness"""
-    os.system("brightnessctl set +10%")
-    os.system(SOUND_EFFECT)
-
-def brightness_down():
-    """Decrease screen brightness"""
-    os.system("brightnessctl set 10%-")
-    os.system(SOUND_EFFECT)
 
 def speak(text):
     """Convert text to speech using Piper"""
@@ -297,47 +240,7 @@ def speak(text):
         f'-f /tmp/reply.wav && paplay /tmp/reply.wav'
     )
 
-def play_song(song):
-    """Play song on YouTube Music (with fallback to regular YouTube)"""
-    query = urllib.parse.quote(song)
-    
-    try:
-        # Try YouTube Music first
-        music_search_url = f"https://music.youtube.com/search?q={query}"
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-        
-        response = requests.get(music_search_url, headers=headers, timeout=5)
-        html = response.text
-        
-        # Try multiple patterns for YouTube Music
-        video_ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', html)
-        
-        if not video_ids:
-            # Fallback: Try getting from regular YouTube
-            print("🔄 Trying regular YouTube...")
-            yt_search_url = f"https://www.youtube.com/results?search_query={query}+official+audio"
-            response = requests.get(yt_search_url, headers=headers, timeout=5)
-            html = response.text
-            video_ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', html)
-        
-        speak(f"Playing {song}")
-        
-        if video_ids:
-            # Open first result in YouTube Music
-            music_url = f"https://music.youtube.com/watch?v={video_ids[0]}"
-            print(f"🎵 Opening: {music_url}")
-            webbrowser.open(music_url)
-        else:
-            # Last resort: direct search on YouTube Music
-            print("⚠️ No video ID found, opening search page")
-            webbrowser.open(f"https://music.youtube.com/search?q={query}")
-            
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        speak("Unable to play song")
-
+function_Aira =function_aira(SOUND_EFFECT=SOUND_EFFECT)
 
 # ---------- PORCUPINE ----------
 porcupine = pvporcupine.create(
@@ -437,7 +340,7 @@ while True:
                 os.system("arecord -d 2 -r 16000 -f S16_LE -c 1 /tmp/song.wav 2>/dev/null")
                 
                 # Use free-form recognizer
-                free_recognizer = KaldiRecognizer(vosk_model, 16000)
+                free_recognizer = KaldiRecognizer(voskaa.vosk_model, 16000)
                 free_recognizer.SetWords(True)
                 
                 with open("/tmp/song.wav", "rb") as f:
@@ -465,7 +368,8 @@ while True:
                 continue
             
             # Play immediately without re-checking
-            play_song(song_name)
+            speak(f"Playing {song_name}")
+            function_Aira.play_song(song_name)
             
             # Reset timer after playing
             last_command_time = time.time()
@@ -473,50 +377,60 @@ while True:
         # Volume up commands
         elif best_cmd in ['volume up', "raise volume", "aira raise volume", 'increase volume']:
             speak("Increasing volume")
-            volume_up()
+            function_Aira.volume_up()
 
         # Volume down commands
         elif best_cmd in ['volume down', 'decrease volume', 'lower volume']:
             speak("Decreasing volume")
-            volume_down()
+            function_Aira.volume_down()
 
         # Date commands
         elif best_cmd in ["aira tell me the date", "aira what is the date"]:
-            date_today()
+            function_Aira.date_today()
+            speak(get_today_date())
 
         # Flight mode on commands
         elif best_cmd in ["turn on flight mode", "enable flight mode", "flight mode on", "airplane mode on"]:
             speak("Enabling flight mode")
-            airplane_mode_on()
+            function_Aira.airplane_mode_on()
 
         # Flight mode off commands
         elif best_cmd in ["turn off flight mode", "disable flight mode", "flight mode off", "airplane mode off"]:
             speak("Disabling flight mode")
-            airplane_mode_off()
+            function_Aira.airplane_mode_off()
 
         # Battery commands
         elif best_cmd in ["aira battery percentage", "aira battery status", "aira how much battery", "aira battery level"]:
-            battery_info = get_battery_info()
+            battery_info = function_Aira.get_battery_info()
             speak(battery_info)
 
         # Brightness up commands
         elif best_cmd in ["brightness up", "increase brightness", "raise brightness"]:
             speak("Increasing brightness")
-            brightness_up()
+            function_Aira.brightness_up()
 
         # Brightness down commands
         elif best_cmd in ["brightness down", "decrease brightness", "lower brightness", "dim brightness"]:
             speak("Decreasing brightness")
-            brightness_down()
+            function_Aira.brightness_down()
 
         # Pause song commands
         elif best_cmd in ["pause song", "puse song", "pause music", "stop song"]:
-            pause_song()
+            function_Aira.pause_song()
+            speak("Song paused")
 
         # Resume song commands
         elif best_cmd in ["resume song", "play again", "continue song"]:      
-            resume_song()
-            
+            function_Aira.resume_song()
+            speak("Resuming song")
+
+
+        #sleep
+        elif best_cmd in ["sleep system", "lock and sleep", "suspend system"]:
+            speak("Locking and suspending the system.")
+            os.system("loginctl lock-session && systemctl suspend")
+
+        #power off 
         else:
             speak("Sorry, I did not understand")
 
