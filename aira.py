@@ -131,8 +131,18 @@ COMMANDS = [
     #off
     "turn off keyboard brightness",
     "keyboard brightness off",
-    "disable keyboard light"
+    "disable keyboard light",
+    #cpu uses
+    "aira cpu percentage",
+    "aira cpu use",
+    "aira cpu use",
+    "cpu uses"
 ]
+
+
+YES_WORDS = ["yes", "yeah", "confirm", "sure", "do it"]
+NO_WORDS  = ["no", "cancel", "stop", "don't", "do not"]
+
 script_path = "sudo ./keyboard.sh"
 
 
@@ -425,13 +435,29 @@ while True:
         elif best_cmd in ["resume song", "play again", "continue song"]:      
             function_Aira.resume_song()
             speak("Resuming song")
-
-
-        #sleep
+        # sleep
         elif best_cmd in ["sleep system", "lock and sleep", "suspend system"]:
-            speak("Locking and suspending the system.")
-            os.system("loginctl lock-session && systemctl suspend")
+            speak("Are you sure you want to suspend the system?")
+            
+            # listen again for confirmation
+            confirm_cmd, confirm_conf = listen_light_command()
 
+            if not confirm_cmd:
+                speak("No response received. Canceling.")
+                
+
+            if confirm_cmd in YES_WORDS:
+                speak("Locking and suspending the system.")
+                os.system("systemctl suspend")
+
+            elif confirm_cmd in NO_WORDS:
+                speak("Okay, canceled.")
+
+            else:
+                speak("I didn't understand. Canceling.")
+
+
+            #next song
         elif best_cmd in ["next song","next music","song next"]:
             function_Aira.next()
             speak("playing next song ")
@@ -442,6 +468,10 @@ while True:
         elif best_cmd in ["turn off keyboard brightness", "keyboard brightness off", "disable keyboard light"]:
             function_Aira.off_keyboard(script_path)
             speak("turn off keyboard brightness")
+
+        elif best_cmd in ["aira cpu percentage","aira cpu use","aira cpu use","cpu uses"]:
+            cpu_percent = function_Aira.cpu_uses()
+            speak(f"CPU usage is {cpu_percent}%")
 
         #power off 
         else:
