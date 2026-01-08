@@ -13,10 +13,10 @@ from datetime import datetime
 from voskaModel import VoskEngine
 from aira_function import function_aira
 from comands import comands
+from keys import ACCESS_KEYY
 
 
-
-ACCESS_KEY = "nIQ6KLjPZ9+wibbwBOjDDY5jhoH+h8fVXGS+wts4R/rR3fdEW8Y6jA=="
+ACCESS_KEY = ACCESS_KEYY
 
 WAKE_SOUND = "wake.wav"
 
@@ -77,7 +77,7 @@ last_command_time = time.time()
 
 # ---------- CLEANUP ----------
 def cleanup(sig=None, frame=None):
-    print("\n🛑 Shutting down AIRA...")
+    print("\n Shutting down AIRA...")
     try:
         stream.stop_stream()
         stream.close()
@@ -392,6 +392,12 @@ while True:
         elif best_cmd in ["aira cpu percentage","aira cpu use","aira cpu use","cpu uses"]:
             cpu_percent = function_Aira.cpu_uses()
             speak(f"CPU usage is {cpu_percent}%")
+        elif best_cmd in ["aira trun on night mode","night mode on","on night mode"]:
+            function_Aira.night_mode_on()
+            speak("night mode trun on")
+        elif best_cmd in ["aira trun off night mode","night mode off","off night mode","trun off night mode"]:
+            function_Aira.night_mode_off()
+            speak("night mode trun off")
 
         #power off 
         else:

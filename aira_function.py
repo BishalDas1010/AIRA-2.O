@@ -141,3 +141,11 @@ class function_aira:
             return cpu_percent if cpu_percent else "0"
         except Exception as e:
             return "0"
+    
+    #night mode on/off
+    @staticmethod
+    def night_mode_on():
+        os.system("gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true")
+    @staticmethod
+    def night_mode_off():
+        os.system("gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled false")
