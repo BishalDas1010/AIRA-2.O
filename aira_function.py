@@ -149,3 +149,10 @@ class function_aira:
     @staticmethod
     def night_mode_off():
         os.system("gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled false")
+
+
+    #bluetooth feature 
+    def bluetoot_on(self):
+        os.system("bluetoothctl power on")
+    def bluetooth_off(self):
+        os.system("bluetoothctl power off")

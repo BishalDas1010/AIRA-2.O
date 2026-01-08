@@ -398,6 +398,13 @@ while True:
         elif best_cmd in ["aira trun off night mode","night mode off","off night mode","trun off night mode"]:
             function_Aira.night_mode_off()
             speak("night mode trun off")
+            #bluetooth on/off
+        elif best_cmd in ["trun on bluetooth","aira trun on bluetooth","bluetooth on","on bluetooth"]:
+            function_Aira.bluetoot_on()
+            speak("bluetooth on")
+        elif best_cmd in ["turn off bluetooth","aira trun off bluetooth","bluetooth off"]:
+            function_Aira.bluetooth_off()
+            speak("bluetooth off")
 
         #power off 
         else:

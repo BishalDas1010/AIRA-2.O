@@ -91,5 +91,16 @@ class comands:
         "aira trun off night mode",
         "night mode off",
         "off night mode",
-        "trun off night mode"
+        "trun off night mode",
+        
+        #bluetoothctl power on
+        "trun on bluetooth",
+        "aira trun on bluetooth",
+        "bluetooth on",
+        "on bluetooth",
+
+        "turn off bluetooth",
+        "aira trun off bluetooth",
+        "bluetooth off"
+
     ]
