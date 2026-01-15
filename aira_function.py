@@ -156,3 +156,7 @@ class function_aira:
         os.system("bluetoothctl power on")
     def bluetooth_off(self):
         os.system("bluetoothctl power off")
+
+    def function_screenshort(self):
+        os.system("scrot")
+        

@@ -101,6 +101,10 @@ class comands:
 
         "turn off bluetooth",
         "aira trun off bluetooth",
-        "bluetooth off"
+        "bluetooth off",
+
+        "Take a screenshot",
+        "AIRA Take a screenshot",
+        "aira screenshot Take",
 
     ]

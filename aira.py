@@ -406,6 +406,12 @@ while True:
             function_Aira.bluetooth_off()
             speak("bluetooth off")
 
+        #Take screenshorttttt
+
+        elif best_cmd in ["Take a screenshot","AIRA Take a screenshot","aira screenshot Take"]:
+            function_Aira.function_screenshort()
+            speak("Tacking screenshort")
+
         #power off 
         else:
             speak("Sorry, I did not understand")
